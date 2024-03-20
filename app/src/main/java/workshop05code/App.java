@@ -56,9 +56,15 @@ public class App {
             String line;
             int i = 1;
             while ((line = br.readLine()) != null) {
-                System.out.println(line);
-                wordleDatabaseConnection.addValidWord(i, line);
-                i++;
+                if (line.matches("^[a-z]{4}$")) {
+                    wordleDatabaseConnection.addValidWord(i, line);
+                    String msg = String.format("Added %s to db", line);
+                    logger.log(Level.INFO, msg);
+                    i++;
+                } else {
+                    String msg = String.format("Attempt to import %s to db. Not a valid word.", line);
+                    logger.log(Level.SEVERE, msg);
+                }
             }
 
         } catch (IOException e) {
@@ -74,12 +80,19 @@ public class App {
             String guess = scanner.nextLine();
 
             while (!guess.equals("q")) {
-                System.out.println("You've guessed '" + guess+"'.");
+                // Added Regex to check for 4 character word
+                if (guess.matches("^[a-z]{4}$")) {
+                    System.out.println("You've guessed '" + guess+"'.");
 
-                if (wordleDatabaseConnection.isValidWord(guess)) { 
-                    System.out.println("Success! It is in the the list.\n");
-                }else{
-                    System.out.println("Sorry. This word is NOT in the the list.\n");
+                    if (wordleDatabaseConnection.isValidWord(guess)) { 
+                        System.out.println("Success! It is in the the list.\n");
+                    }else{
+                        System.out.println("Sorry. This word is NOT in the the list.\n");
+                    }
+                } else {
+                    System.out.println("The word '" + guess + "' is not a valid word.");
+                    String msg = String.format("User attempt to guess '%s'. Not a valid word.", guess);
+                    logger.log(Level.WARNING, msg);
                 }
 
                 System.out.print("Enter a 4 letter word for a guess or q to quit: " );
